@@ -72,7 +72,7 @@ class TaskListViewController: UITableViewController {
             guard let task = alert.textFields?.first?.text, !task.isEmpty else {return}
             self.save(task)
         }
-        let cancelAction = UIAlertAction(title: "Calcek", style: .destructive)
+        let cancelAction = UIAlertAction(title: "Calcel", style: .destructive)
         alert.addAction(saveAction)
         alert.addAction(cancelAction)
         alert.addTextField { (textField) in
@@ -82,12 +82,10 @@ class TaskListViewController: UITableViewController {
     }
     
     private func save(_ taskName: String){
-        
-        
         let task = Task(context: context)
-       
         task.name = taskName
         taskList.append(task)
+        
         let cellIndex = IndexPath(row: taskList.count - 1, section: 0)
         tableView.insertRows(at: [cellIndex], with: .automatic)
 
@@ -122,8 +120,6 @@ extension TaskListViewController {
         taskList.count
     }
     
-    
-   
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellID, for: indexPath)
         let task = taskList[indexPath.row]
@@ -142,33 +138,26 @@ extension TaskListViewController {
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             print(indexPath.row)
-           
-      
-            
-          // var task = Task(context: context)
-          
-          //  print(taskList.count)
             
             let task = taskList[indexPath.row]
-
             context.delete(task)
             
-          
-            
+            // MARK:  delete coreData attribute
             if context.hasChanges {
                 do {
-                print("content changed")
+                    print("content changed")
                     try context.save()
                 } catch {
-
                     let nserror = error as NSError
                     fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
                 }
             }
             
             taskList.remove(at: indexPath.row)
-                       tableView.deleteRows(at: [indexPath], with: .automatic)
-
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+            
         }
     }
+    
+    
 }
