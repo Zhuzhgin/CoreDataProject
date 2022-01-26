@@ -6,8 +6,11 @@
 //
 
 import UIKit
+import CoreData
 
 class TaskViewController: UIViewController {
+    
+    private let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     private lazy var taskTextField: UITextField = {
        let textField = UITextField()
@@ -22,7 +25,8 @@ class TaskViewController: UIViewController {
         button.setTitle("Save Task", for: .normal)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 18)
         
-        self.dismiss(animated: true)
+        button.addTarget(self, action: #selector(save), for: .touchUpInside)
+//        self.save()
         return button
     }()
     
@@ -31,6 +35,8 @@ class TaskViewController: UIViewController {
         button.backgroundColor = #colorLiteral(red: 0.9529411793, green: 0.6862745285, blue: 0.1333333403, alpha: 1)
         button.setTitle("Cancel", for: .normal)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 18)
+        
+        button.addTarget(self, action: #selector(save), for: .touchUpInside)
         
         self.dismiss(animated: true)
         return button
@@ -73,8 +79,30 @@ class TaskViewController: UIViewController {
             
         ])
         
+    }
+    
+    @objc private func save() {
         
         
+        // Для сложных взаимосвязей и моделей
+//        guard let enttityDeescription = NSEntityDescription.entity(forEntityName: "Task", in: context) else {return}
+//        guard let task = NSManagedObject(entity: enttityDeescription, insertInto: context) as? Task else {return}
+        
+        // ДЛя простой модели
+        let task = Task(context: context)
+        task.name = taskTextField.text
+        
+        if context.hasChanges {
+            do {
+                try context.save()
+            } catch {
+             
+                let nserror = error as NSError
+                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+            }
+        }
+        
+        dismiss(animated: true)
         
     }
 }
