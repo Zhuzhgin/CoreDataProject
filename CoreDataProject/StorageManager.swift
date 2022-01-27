@@ -10,8 +10,12 @@ import CoreData
 
 class StorageManager {
     static var shared = StorageManager()
-    private init() {}
-    
+    private let context: NSManagedObjectContext
+   
+    private init() {
+              context = persistentContainer.viewContext
+          }
+
     var persistentContainer: NSPersistentContainer = {
         
         let container = NSPersistentContainer(name: "CoreDataProject")
@@ -23,26 +27,19 @@ class StorageManager {
         })
         return container
     }()
-    
-    func saveContext (taskName: String, complition: @escaping(_ task: Task) -> Void) {
-        let context = persistentContainer.viewContext
+   
+    func saveTask (taskName: String, complition: @escaping(_ task: Task) -> Void) {
         let task = Task(context: context)
         task.name = taskName
         complition(task)
         
-        if context.hasChanges {
-            do {
-                try context.save()
-            } catch {
-                
-                let nserror = error as NSError
-                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
-            }
-        }
+        saveContext()
     }
     
+    
+    
     func fetchData(complition: @escaping(_ tasklist: [Task]) ->Void ) {
-        let context = persistentContainer.viewContext
+
         let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
         
         do {
@@ -54,18 +51,21 @@ class StorageManager {
     }
     
     func deleteData(task: Task) {
-        let context = persistentContainer.viewContext
         
         context.delete(task)
+        saveContext()
+    }
+    
+    private func saveContext() {
         if context.hasChanges {
-            do {
-                print("content changed")
-                try context.save()
-            } catch {
-                let nserror = error as NSError
-                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
-            }
-        }
+                    do {
+                        print("content changed")
+                        try context.save()
+                    } catch {
+                        let nserror = error as NSError
+                        fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+                    }
+                }
     }
 }
 
