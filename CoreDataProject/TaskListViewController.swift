@@ -9,12 +9,10 @@ import UIKit
 
 class TaskListViewController: UITableViewController {
 
+    
     private let cellID = "task"
     var taskList: [Task] = []
-    private enum SaveCase {
-        case saveNewTask
-        case saveEditingTask
-    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
      
@@ -88,9 +86,10 @@ class TaskListViewController: UITableViewController {
         alert.addTextField { (textField) in
             textField.text = self.taskList[indexPath.row].name
         }
+        
         let saveAction = UIAlertAction(title: "Save", style: .default) { (_) in
-            guard let task = alert.textFields?.first?.text, !task.isEmpty else {return}
-            self.saveEditTask(taskName: task, indexPath: indexPath)
+            guard let newTaskName = alert.textFields?.first?.text, !newTaskName.isEmpty else {return}
+            self.saveEditTask(newTaskName: newTaskName, indexPath: indexPath)
         }
         let cancelAction = UIAlertAction(title: "Cancel", style: .destructive)
         alert.addAction(saveAction)
@@ -108,18 +107,18 @@ class TaskListViewController: UITableViewController {
         tableView.insertRows(at: [cellIndex], with: .automatic)
     }
     
-    private func saveEditTask(taskName: String, indexPath: IndexPath) {
-        let oldTask = taskList[indexPath.row]
-        StorageManager.shared.deleteData(task: oldTask)
-        
-        StorageManager.shared.saveTask(taskName: taskName) { (task) in
-            self.taskList[indexPath.row] = task
+    private func saveEditTask(newTaskName: String, indexPath: IndexPath) {
+      let task = taskList[indexPath.row]
+
+        taskList[indexPath.row].name = newTaskName
+        StorageManager.shared.edit(task: task, newName: newTaskName)
+       
             self.tableView.reloadData()
         }
         
     }
     
-}
+
 
 extension TaskListViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

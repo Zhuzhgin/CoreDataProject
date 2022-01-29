@@ -11,6 +11,7 @@ import CoreData
 class StorageManager {
     static var shared = StorageManager()
     private let context: NSManagedObjectContext
+    
    
     private init() {
               context = persistentContainer.viewContext
@@ -30,12 +31,18 @@ class StorageManager {
    
     func saveTask (taskName: String, complition: @escaping(_ task: Task) -> Void) {
         let task = Task(context: context)
+        
         task.name = taskName
         complition(task)
         
         saveContext()
     }
     
+    func edit(task: Task, newName: String){
+      
+        task.name = newName
+        saveContext()
+    }
     
     
     func fetchData(complition: @escaping(_ tasklist: [Task]) ->Void ) {
